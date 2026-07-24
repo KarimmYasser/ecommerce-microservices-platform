@@ -1,0 +1,2 @@
+# inventory-service overrides on top of the shared application.yml.
+# See docs/domain/inventory.md and docs/api/inventory-api.md.

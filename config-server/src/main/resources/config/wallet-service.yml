@@ -1,0 +1,2 @@
+# wallet-service overrides on top of the shared application.yml.
+# See docs/domain/wallet.md and docs/security/authentication-authorization.md.

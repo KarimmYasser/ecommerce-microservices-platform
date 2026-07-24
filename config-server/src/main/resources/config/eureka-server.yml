@@ -1,0 +1,6 @@
+# eureka-server does not register with/consume another eureka instance, so it
+# does not import the shared eureka.client block from application.yml here.
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false

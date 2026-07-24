@@ -1,0 +1,2 @@
+# Gateway-specific overrides. Routes live in api-gateway's own application.yml
+# for now (Phase 4 may migrate them here). See docs/infrastructure/api-gateway.md.

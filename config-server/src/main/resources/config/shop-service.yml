@@ -1,0 +1,2 @@
+# shop-service overrides on top of the shared application.yml.
+# See docs/domain/shop.md and docs/api/inter-service-feign.md.
