@@ -1,0 +1,18 @@
+# Test-only overrides: disable calls to infra that isn't running, and supply a
+# dummy JWT secret. The datasource itself is wired dynamically to a real
+# Testcontainers MySQL instance (see InventoryServiceApplicationTests) — no H2,
+# per docs/conventions/testing-strategy.md.
+spring:
+  cloud:
+    config:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false
+
+jwt:
+  secret: test-only-secret-do-not-use-in-any-real-environment
