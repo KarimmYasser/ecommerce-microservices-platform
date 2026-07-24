@@ -112,6 +112,17 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<!-- Several test classes each spin up their own Testcontainers MySQL
+					     instance; running classes across parallel JVM forks lets those
+					     containers start concurrently instead of one after another. -->
+					<forkCount>4</forkCount>
+					<reuseForks>true</reuseForks>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
