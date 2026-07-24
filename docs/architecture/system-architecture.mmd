@@ -1,0 +1,53 @@
+%% E-commerce microservices — full system architecture
+%% Paste this whole file into Excalidraw: menu (top-left) -> "Insert" -> "Mermaid to Excalidraw"
+%% Source of truth: docs/architecture/01-system-overview.md, 02-service-topology.md, 03-request-flows.md
+flowchart TB
+    Client["Client / Postman<br/>(browser, mobile app, API client)"]
+
+    subgraph GW["Gateway — :8080"]
+        Gateway["api-gateway<br/>routing / load balancing / JWT auth gate"]
+    end
+
+    subgraph BIZ["Business Services"]
+        direction LR
+        Inventory["inventory-service — :8081<br/>products / categories / variants / stock"]
+        Wallet["wallet-service — :8082<br/>users / auth (JWT issuer) / wallet / ledger"]
+        Shop["shop-service — :8083<br/>cart / wishlist / orders / reviews<br/>(checkout saga orchestrator)"]
+    end
+
+    subgraph DATA["MySQL — one schema per service"]
+        direction LR
+        InvDB[("inventory_db")]
+        WalDB[("wallet_db")]
+        ShopDB[("shop_db")]
+    end
+
+    subgraph CLOUD["Cloud Infrastructure"]
+        direction LR
+        Config["config-server — :8888<br/>centralised configuration"]
+        Eureka["eureka-server — :8761<br/>service discovery"]
+    end
+
+    Client -->|HTTPS| Gateway
+
+    Gateway -->|"lb://inventory-service<br/>/api/v1/products/**, /categories/**"| Inventory
+    Gateway -->|"lb://wallet-service<br/>/api/v1/auth/**, /wallets/me/**, /users/**"| Wallet
+    Gateway -->|"lb://shop-service<br/>/api/v1/cart/**, /wishlist/**, /orders/**, /reviews/**"| Shop
+
+    Shop -->|"Feign: check / reserve / release stock<br/>+ batch product fetch"| Inventory
+    Shop -->|"Feign: debit / credit wallet<br/>(Resilience4j circuit breaker)"| Wallet
+
+    Inventory --- InvDB
+    Wallet --- WalDB
+    Shop --- ShopDB
+
+    Gateway -.->|"register / discover"| Eureka
+    Inventory -.->|"register / discover"| Eureka
+    Wallet -.->|"register / discover"| Eureka
+    Shop -.->|"register / discover"| Eureka
+
+    Gateway -.->|"fetch config"| Config
+    Inventory -.->|"fetch config"| Config
+    Wallet -.->|"fetch config"| Config
+    Shop -.->|"fetch config"| Config
+    Eureka -.->|"fetch config"| Config

@@ -19,6 +19,7 @@ can read one concern without wading through the rest.
 - [01-system-overview.md](architecture/01-system-overview.md) — services, responsibilities, tech stack, high-level diagram.
 - [02-service-topology.md](architecture/02-service-topology.md) — ports, databases, startup order, environment variables.
 - [03-request-flows.md](architecture/03-request-flows.md) — sequence diagrams for auth and the checkout saga.
+- [system-architecture.mmd](architecture/system-architecture.mmd) — the full topology as a standalone Mermaid flowchart; paste it directly into Excalidraw (top-left menu → **Insert** → **Mermaid to Excalidraw**) or any Mermaid renderer.
 
 ## 2. Domain models (one file per service)
 - [wallet.md](domain/wallet.md)
