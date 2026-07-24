@@ -1,2 +1,10 @@
-# wallet-service overrides on top of the shared application.yml.
-# See docs/domain/wallet.md and docs/security/authentication-authorization.md.
+# wallet-service configuration
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/wallet_db}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
