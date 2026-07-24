@@ -2,6 +2,7 @@ package com.ejada.ecommerce.inventory.mapper;
 
 import com.ejada.ecommerce.inventory.domain.Category;
 import com.ejada.ecommerce.inventory.dto.CategoryResponse;
+
 import org.springframework.stereotype.Component;
 
 @Component

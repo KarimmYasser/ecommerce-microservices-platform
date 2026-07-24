@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.ejada.ecommerce.inventory.domain.Category;
 import com.ejada.ecommerce.inventory.dto.CategoryResponse;
+
 import org.junit.jupiter.api.Test;
 
 class CategoryMapperTest {

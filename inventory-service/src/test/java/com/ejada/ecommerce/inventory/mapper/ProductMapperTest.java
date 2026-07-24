@@ -10,6 +10,7 @@ import com.ejada.ecommerce.inventory.domain.ProductVariant;
 import com.ejada.ecommerce.inventory.domain.StockItem;
 import com.ejada.ecommerce.inventory.dto.ProductDetailResponse;
 import com.ejada.ecommerce.inventory.dto.ProductSummaryResponse;
+
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 

@@ -1,11 +1,13 @@
 package com.ejada.ecommerce.inventory.repository;
 
-import com.ejada.ecommerce.inventory.domain.StockItem;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+
+import com.ejada.ecommerce.inventory.domain.StockItem;
+
 import jakarta.persistence.LockModeType;
 
 public interface StockItemRepository extends JpaRepository<StockItem, Long> {

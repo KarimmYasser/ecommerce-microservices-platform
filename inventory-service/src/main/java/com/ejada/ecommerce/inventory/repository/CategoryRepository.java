@@ -1,8 +1,9 @@
 package com.ejada.ecommerce.inventory.repository;
 
-import com.ejada.ecommerce.inventory.domain.Category;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.ejada.ecommerce.inventory.domain.Category;
 
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 

@@ -1,7 +1,8 @@
 package com.ejada.ecommerce.inventory.support;
 
-import com.ejada.ecommerce.inventory.domain.BaseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import com.ejada.ecommerce.inventory.domain.BaseEntity;
 
 /**
  * BaseEntity.id has no public setter by design (ids are DB-generated, never

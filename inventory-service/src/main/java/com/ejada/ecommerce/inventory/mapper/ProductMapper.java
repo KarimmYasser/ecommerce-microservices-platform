@@ -8,6 +8,7 @@ import com.ejada.ecommerce.inventory.dto.ProductBatchItemResponse;
 import com.ejada.ecommerce.inventory.dto.ProductDetailResponse;
 import com.ejada.ecommerce.inventory.dto.ProductSummaryResponse;
 import com.ejada.ecommerce.inventory.dto.VariantResponse;
+
 import java.util.Comparator;
 import java.util.List;
 import org.springframework.stereotype.Component;

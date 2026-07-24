@@ -1,8 +1,9 @@
 package com.ejada.ecommerce.inventory.repository.spec;
 
-import com.ejada.ecommerce.inventory.domain.Product;
 import java.math.BigDecimal;
 import org.springframework.data.jpa.domain.Specification;
+
+import com.ejada.ecommerce.inventory.domain.Product;
 
 /**
  * Composable filter predicates for {@code GET /products}. Combined in
