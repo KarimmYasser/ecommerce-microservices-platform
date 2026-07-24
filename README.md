@@ -73,14 +73,25 @@ The system comprises 6 deployable microservices orchestrated via Maven parent PO
 ./mvnw clean verify
 ```
 
-### Startup order (local development)
+### Startup Options
+
+#### Option A: Docker Compose (All Services + MySQL)
+```bash
+# Package all jars first
+./mvnw clean package -DskipTests
+
+# Build images and start all 6 microservices + MySQL
+docker compose up --build -d
+```
+
+#### Option B: Manual Maven / IDE Startup
 Start the microservices in the following sequential order:
-1. `config-server` (`:8888`)
-2. `eureka-server` (`:8761`)
-3. `inventory-service` (`:8081`)
-4. `wallet-service` (`:8082`)
-5. `shop-service` (`:8083`)
-6. `api-gateway` (`:8080`)
+1. `config-server` (`:8888`): `./mvnw -pl config-server spring-boot:run`
+2. `eureka-server` (`:8761`): `./mvnw -pl eureka-server spring-boot:run`
+3. `inventory-service` (`:8081`): `./mvnw -pl inventory-service spring-boot:run`
+4. `wallet-service` (`:8082`): `./mvnw -pl wallet-service spring-boot:run`
+5. `shop-service` (`:8083`): `./mvnw -pl shop-service spring-boot:run`
+6. `api-gateway` (`:8080`): `./mvnw -pl api-gateway spring-boot:run`
 
 ---
 

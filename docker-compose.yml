@@ -1,27 +1,107 @@
-# Local development only — spins up one MySQL instance with the three
-# per-service schemas (see docs/architecture/02-service-topology.md).
-# Not used in CI/grading; services also run against any MySQL 8 you already have.
-#
-# Usage:
-#   MYSQL_ROOT_PASSWORD=<pick-one-locally> docker compose up -d
-# No password has a committed default — you choose it at run time.
 services:
   mysql:
     image: mysql:8.4
     container_name: ejada-ecommerce-mysql
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD before starting}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
     ports:
       - "3306:3306"
     volumes:
       - ejada-mysql-data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  config-server:
+    build: ./config-server
+    container_name: ejada-config-server
+    ports:
+      - "8888:8888"
+    environment:
+      SPRING_PROFILES_ACTIVE: native
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: ejada-eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+    depends_on:
+      - config-server
+
+  inventory-service:
+    build: ./inventory-service
+    container_name: ejada-inventory-service
+    ports:
+      - "8081:8081"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/inventory_db?useSSL=false&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      JWT_SECRET: ${JWT_SECRET:-YourSuperSecretKeyMustBe32BytesOrLonger!}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  wallet-service:
+    build: ./wallet-service
+    container_name: ejada-wallet-service
+    ports:
+      - "8082:8082"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/wallet_db?useSSL=false&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      JWT_SECRET: ${JWT_SECRET:-YourSuperSecretKeyMustBe32BytesOrLonger!}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  shop-service:
+    build: ./shop-service
+    container_name: ejada-shop-service
+    ports:
+      - "8083:8083"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_URL: http://eureka-server:8761/eureka
+      DB_URL: jdbc:mysql://mysql:3306/shop_db?useSSL=false&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      JWT_SECRET: ${JWT_SECRET:-YourSuperSecretKeyMustBe32BytesOrLonger!}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: ejada-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      CONFIG_SERVER_URL: http://config-server:8888
+      EUREKA_URL: http://eureka-server:8761/eureka
+      JWT_SECRET: ${JWT_SECRET:-YourSuperSecretKeyMustBe32BytesOrLonger!}
+    depends_on:
+      - eureka-server
 
 volumes:
   ejada-mysql-data:
