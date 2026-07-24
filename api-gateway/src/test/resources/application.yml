@@ -1,0 +1,14 @@
+# Test-only overrides: dummy values for required env placeholders (never real
+# secrets), and disable calls to infra that isn't running during a plain
+# context-load test.
+spring:
+  cloud:
+    config:
+      enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+jwt:
+  secret: test-only-secret-do-not-use-in-any-real-environment
