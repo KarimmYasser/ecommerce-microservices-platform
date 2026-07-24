@@ -1,0 +1,41 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: wallet-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/wallet_db}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    persist-authorization: true   # keeps the entered JWT applied to every call after one Authorize
+
+# This service SIGNS tokens (identity provider) and validates them, both using
+# this secret. No default — must be supplied via environment.
+# See docs/security/authentication-authorization.md
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:3600000}
