@@ -1,0 +1,23 @@
+# Platform-Wide Git Configuration
+# Ensures cross-platform consistency for scripts, binaries, and configuration files.
+
+# Windows-safe line endings for Maven wrapper (required for gradlew)
+mvnw text eol=lf
+*.cmd text eol=crlf
+
+# Ensure all SQL scripts use Unix line endings to prevent MySQL/MariaDB parsing errors
+*.sql text=auto eol=lf
+
+# Source code and build files: use LF for portability
+*.java text=auto eol=lf
+*.kt text=auto eol=lf
+*.xml text=auto eol=lf
+*.yaml text=auto eol=lf
+*.yml text=auto eol=lf
+*.gradle text=auto eol=lf
+*.gradle.kts text=auto eol=lf
+*.md text=auto eol=lf
+
+# Lock files (pnpm, Composer, etc.) should be line-ending-agnostic but usually prefer LF
+# package-lock.json text=auto eol=lf
+composer.lock text=auto eol=lf
