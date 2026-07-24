@@ -3,6 +3,8 @@
 # Testcontainers MySQL instance (see InventoryServiceApplicationTests) — no H2,
 # per docs/conventions/testing-strategy.md.
 spring:
+  profiles:
+    active: test   # excludes DataSeeder (@Profile("!test")) so test data stays deterministic
   cloud:
     config:
       enabled: false
