@@ -1,0 +1,78 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: shop-service
+  config:
+    import: "optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}"
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/shop_db}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,circuitbreakerevents
+  health:
+    circuitbreakers:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    persist-authorization: true   # keeps the entered JWT applied to every call after one Authorize
+
+# Validates the JWT issued by wallet-service. No default — must be supplied.
+# See docs/security/authentication-authorization.md
+jwt:
+  secret: ${JWT_SECRET}
+
+# Breaker/retry/timeout instances wrap the Feign clients to inventory-service
+# and wallet-service during checkout. Finalised in Phase 4; placeholders here
+# so the config key shape is settled early. See docs/infrastructure/resilience4j.md
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryCheck:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+      inventoryReserve:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+      walletDebit:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+  timelimiter:
+    instances:
+      walletDebit:
+        timeout-duration: 2s
+      inventoryReserve:
+        timeout-duration: 2s
+  retry:
+    instances:
+      inventoryRelease:
+        max-attempts: 3
+        wait-duration: 500ms
+      walletCredit:
+        max-attempts: 3
+        wait-duration: 500ms

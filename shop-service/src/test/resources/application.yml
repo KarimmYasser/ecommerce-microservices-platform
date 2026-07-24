@@ -1,0 +1,15 @@
+# Test-only overrides — see inventory-service's equivalent file for rationale.
+spring:
+  cloud:
+    config:
+      enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+eureka:
+  client:
+    enabled: false
+
+jwt:
+  secret: test-only-secret-do-not-use-in-any-real-environment

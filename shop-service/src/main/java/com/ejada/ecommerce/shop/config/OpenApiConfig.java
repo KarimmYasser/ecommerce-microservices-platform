@@ -1,0 +1,37 @@
+package com.ejada.ecommerce.shop.config;
+
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * Declares the "bearerAuth" scheme so Swagger UI shows an Authorize button;
+ * springdoc.swagger-ui.persist-authorization (application.yml) makes the
+ * entered JWT stick and auto-attach to every subsequent try-it-out call.
+ */
+@Configuration
+public class OpenApiConfig {
+
+	private static final String BEARER_SCHEME = "bearerAuth";
+
+	@Bean
+	OpenAPI shopServiceOpenApi() {
+		return new OpenAPI()
+				.info(new Info()
+						.title("Shop Service API")
+						.description("Cart, wishlist, orders (checkout saga), and reviews.")
+						.version("v1"))
+				.components(new Components().addSecuritySchemes(BEARER_SCHEME,
+						new SecurityScheme()
+								.name(BEARER_SCHEME)
+								.type(SecurityScheme.Type.HTTP)
+								.scheme("bearer")
+								.bearerFormat("JWT")))
+				.addSecurityItem(new SecurityRequirement().addList(BEARER_SCHEME));
+	}
+
+}
