@@ -9,7 +9,7 @@ start a phase until the previous one is green.
 
 | Phase | Focus | Status |
 |-------|-------|--------|
-| 0 | [Foundation & repo restructure](phase-0-foundation.md) | ☐ not started |
+| 0 | [Foundation & repo restructure](phase-0-foundation.md) | ✅ done |
 | 1 | [inventory-service](phase-1-inventory-service.md) (build first — others depend on it) | ☐ |
 | 2 | [wallet-service](phase-2-wallet-service.md) (auth + money) | ☐ |
 | 3 | [shop-service](phase-3-shop-service.md) (cart, orders, checkout saga, reviews) | ☐ |
