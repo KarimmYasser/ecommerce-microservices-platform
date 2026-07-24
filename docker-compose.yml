@@ -1,0 +1,27 @@
+# Local development only — spins up one MySQL instance with the three
+# per-service schemas (see docs/architecture/02-service-topology.md).
+# Not used in CI/grading; services also run against any MySQL 8 you already have.
+#
+# Usage:
+#   MYSQL_ROOT_PASSWORD=<pick-one-locally> docker compose up -d
+# No password has a committed default — you choose it at run time.
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: ejada-ecommerce-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?set MYSQL_ROOT_PASSWORD before starting}
+    ports:
+      - "3306:3306"
+    volumes:
+      - ejada-mysql-data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ejada-mysql-data:
