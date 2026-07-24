@@ -1,2 +1,35 @@
 # shop-service overrides on top of the shared application.yml.
 # See docs/domain/shop.md and docs/api/inter-service-feign.md.
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      inventoryCheck:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+      inventoryReserve:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+      walletDebit:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+  timelimiter:
+    instances:
+      walletDebit:
+        timeout-duration: 2s
+      inventoryReserve:
+        timeout-duration: 2s
+  retry:
+    instances:
+      inventoryRelease:
+        max-attempts: 3
+        wait-duration: 500ms
+      walletCredit:
+        max-attempts: 3
+        wait-duration: 500ms
