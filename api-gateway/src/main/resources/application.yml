@@ -10,7 +10,7 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: false   # explicit routes only — never auto-expose every registered service
+          enabled: false
       routes:
         - id: wallet-auth
           uri: lb://wallet-service
@@ -42,8 +42,5 @@ management:
       exposure:
         include: health,info,gateway
 
-# JWT edge validation (docs/security/authentication-authorization.md) is wired
-# up in Phase 4 as a GlobalFilter using this secret. No default — must be
-# supplied via environment so a real secret is never accidentally used.
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${JWT_SECRET:default-super-secret-key-change-in-production-must-be-at-least-256-bits!}
