@@ -3,8 +3,8 @@ package com.ejada.ecommerce.shop.service.impl;
 import com.ejada.ecommerce.shop.service.CartService;
 import com.ejada.ecommerce.shop.service.OrderService;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
-import com.ejada.ecommerce.shop.client.WalletClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientWalletClient;
 import com.ejada.ecommerce.shop.client.dto.CheckItem;
 import com.ejada.ecommerce.shop.client.dto.CreditRequest;
 import com.ejada.ecommerce.shop.client.dto.DebitRequest;
@@ -51,9 +51,9 @@ public class OrderServiceImpl implements OrderService {
 
 	private final CartService cartService;
 
-	private final InventoryClient inventoryClient;
+	private final ResilientInventoryClient resilientInventoryClient;
 
-	private final WalletClient walletClient;
+	private final ResilientWalletClient resilientWalletClient;
 
 	private final OrderMapper orderMapper;
 
@@ -74,7 +74,7 @@ public class OrderServiceImpl implements OrderService {
 
 		Map<Long, ProductBatchItem> liveProducts;
 		try {
-			List<ProductBatchItem> batch = inventoryClient.getProductsBatch(productIds);
+			List<ProductBatchItem> batch = resilientInventoryClient.getProductsBatch(productIds);
 			if (batch == null || batch.isEmpty()) {
 				throw new DownstreamServiceException("Inventory service returned empty product details");
 			}
@@ -130,7 +130,12 @@ public class OrderServiceImpl implements OrderService {
 				.toList();
 
 		try {
-			inventoryClient.reserve(new InventoryReserveRequest(savedOrder.getId(), reserveItems));
+			resilientInventoryClient.reserve(new InventoryReserveRequest(savedOrder.getId(), reserveItems));
+		} catch (InsufficientStockException ex) {
+			savedOrder.setStatus(OrderStatus.FAILED);
+			savedOrder.setFailureReason("OUT_OF_STOCK");
+			orderRepository.save(savedOrder);
+			throw ex;
 		} catch (FeignException ex) {
 			if (ex.status() == 409) {
 				savedOrder.setStatus(OrderStatus.FAILED);
@@ -154,8 +159,14 @@ public class OrderServiceImpl implements OrderService {
 		DebitRequest debitRequest = new DebitRequest(savedOrder.getGrandTotal(), savedOrder.getCurrency(), idempotencyKey);
 
 		try {
-			DebitResponse debitResponse = walletClient.debit(userId, debitRequest);
+			DebitResponse debitResponse = resilientWalletClient.debit(userId, debitRequest);
 			savedOrder.setPaymentTransactionId(String.valueOf(debitResponse.transactionId()));
+		} catch (PaymentFailedException ex) {
+			compensateReleaseStock(savedOrder.getId());
+			savedOrder.setStatus(OrderStatus.FAILED);
+			savedOrder.setFailureReason("PAYMENT_FAILED");
+			orderRepository.save(savedOrder);
+			throw ex;
 		} catch (FeignException ex) {
 			compensateReleaseStock(savedOrder.getId());
 			if (ex.status() == 402) {
@@ -218,7 +229,7 @@ public class OrderServiceImpl implements OrderService {
 		// Issue Refund
 		String refundKey = "refund-order-" + order.getId();
 		try {
-			walletClient.credit(userId, new CreditRequest(order.getGrandTotal(), order.getCurrency(), refundKey));
+			resilientWalletClient.credit(userId, new CreditRequest(order.getGrandTotal(), order.getCurrency(), refundKey));
 		} catch (Exception ex) {
 			log.error("Failed to credit refund for order {}", orderId, ex);
 			throw new DownstreamServiceException("Wallet refund failed during cancellation", ex);
@@ -234,7 +245,7 @@ public class OrderServiceImpl implements OrderService {
 
 	private void compensateReleaseStock(Long orderId) {
 		try {
-			inventoryClient.release(new InventoryReleaseRequest(orderId));
+			resilientInventoryClient.release(new InventoryReleaseRequest(orderId));
 		} catch (Exception ex) {
 			log.error("Stock release compensation failed for order {}", orderId, ex);
 		}

@@ -54,17 +54,22 @@ class OrderIntegrationTest {
 		registry.add("spring.datasource.url", MYSQL::getJdbcUrl);
 		registry.add("spring.datasource.username", MYSQL::getUsername);
 		registry.add("spring.datasource.password", MYSQL::getPassword);
-		if (wireMockServer != null && wireMockServer.isRunning()) {
-			String baseUrl = "http://localhost:" + wireMockServer.port();
-			registry.add("spring.cloud.openfeign.client.config.inventory-service.url", () -> baseUrl);
-			registry.add("spring.cloud.openfeign.client.config.wallet-service.url", () -> baseUrl);
+
+		if (wireMockServer == null) {
+			wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
+			wireMockServer.start();
 		}
+		String baseUrl = "http://localhost:" + wireMockServer.port();
+		registry.add("spring.cloud.openfeign.client.config.inventory-service.url", () -> baseUrl);
+		registry.add("spring.cloud.openfeign.client.config.wallet-service.url", () -> baseUrl);
 	}
 
 	@BeforeAll
 	static void startWireMock() {
-		wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
-		wireMockServer.start();
+		if (wireMockServer == null) {
+			wireMockServer = new WireMockServer(WireMockConfiguration.wireMockConfig().dynamicPort());
+			wireMockServer.start();
+		}
 	}
 
 	@AfterAll

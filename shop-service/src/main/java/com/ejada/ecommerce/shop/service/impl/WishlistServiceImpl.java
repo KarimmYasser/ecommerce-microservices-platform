@@ -2,7 +2,7 @@ package com.ejada.ecommerce.shop.service.impl;
 
 import com.ejada.ecommerce.shop.service.WishlistService;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
 import com.ejada.ecommerce.shop.client.dto.ProductBatchItem;
 import com.ejada.ecommerce.shop.domain.WishlistItem;
 import com.ejada.ecommerce.shop.dto.WishlistItemInput;
@@ -25,7 +25,7 @@ public class WishlistServiceImpl implements WishlistService {
 
 	private final WishlistItemRepository wishlistItemRepository;
 
-	private final InventoryClient inventoryClient;
+	private final ResilientInventoryClient inventoryClient;
 
 	private final WishlistMapper wishlistMapper;
 

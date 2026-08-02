@@ -11,8 +11,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
-import com.ejada.ecommerce.shop.client.WalletClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientWalletClient;
 import com.ejada.ecommerce.shop.client.dto.CreditRequest;
 import com.ejada.ecommerce.shop.client.dto.DebitRequest;
 import com.ejada.ecommerce.shop.client.dto.DebitResponse;
@@ -61,10 +61,10 @@ class OrderServiceImplTest {
 	private CartService cartService;
 
 	@Mock
-	private InventoryClient inventoryClient;
+	private ResilientInventoryClient inventoryClient;
 
 	@Mock
-	private WalletClient walletClient;
+	private ResilientWalletClient walletClient;
 
 	private OrderMapper orderMapper = new OrderMapper();
 

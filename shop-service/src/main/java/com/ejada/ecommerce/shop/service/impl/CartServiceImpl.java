@@ -2,7 +2,7 @@ package com.ejada.ecommerce.shop.service.impl;
 
 import com.ejada.ecommerce.shop.service.CartService;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
 import com.ejada.ecommerce.shop.client.dto.ProductBatchItem;
 import com.ejada.ecommerce.shop.domain.Cart;
 import com.ejada.ecommerce.shop.domain.CartItem;
@@ -32,7 +32,7 @@ public class CartServiceImpl implements CartService {
 
 	private final CartItemRepository cartItemRepository;
 
-	private final InventoryClient inventoryClient;
+	private final ResilientInventoryClient inventoryClient;
 
 	private final CartMapper cartMapper;
 

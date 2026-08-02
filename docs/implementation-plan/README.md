@@ -13,8 +13,8 @@ start a phase until the previous one is green.
 | 1 | [inventory-service](phase-1-inventory-service.md) (build first — others depend on it) | ✅ done |
 | 2 | [wallet-service](phase-2-wallet-service.md) (auth + money) | ✅ done |
 | 3 | [shop-service](phase-3-shop-service.md) (cart, orders, checkout saga, reviews) | ✅ done |
-| 4 | [Service mesh](phase-4-service-mesh.md) (config, eureka, gateway, feign, resilience) | 🟡 mostly done — resilience4j instances configured but not wired to any call yet |
-| 5 | [End-to-end](phase-5-end-to-end.md) (E2E tests, Postman, resilience demo) | 🟡 mostly done — resilience demo still open, see Phase 4 |
+| 4 | [Service mesh](phase-4-service-mesh.md) (config, eureka, gateway, feign, resilience) | ✅ done |
+| 5 | [End-to-end](phase-5-end-to-end.md) (E2E tests, Postman, resilience demo) | ✅ done |
 
 > Keep this table current — tick a phase only when its own checklist and
 > `./mvnw clean verify` are green.

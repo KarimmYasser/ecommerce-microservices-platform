@@ -1,35 +1,48 @@
 # shop-service overrides on top of the shared application.yml.
 # See docs/domain/shop.md and docs/api/inter-service-feign.md.
 
+management:
+  endpoint:
+    health:
+      show-details: always
+
 resilience4j:
   circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
     instances:
       inventoryCheck:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        register-health-indicator: true
+        base-config: default
       inventoryReserve:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        register-health-indicator: true
+        base-config: default
+        ignore-exceptions:
+          - feign.FeignException$Conflict
+          - com.ejada.ecommerce.shop.exception.InsufficientStockException
       walletDebit:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10s
-        register-health-indicator: true
+        base-config: default
+        ignore-exceptions:
+          - com.ejada.ecommerce.shop.exception.PaymentFailedException
   timelimiter:
+    configs:
+      default:
+        timeout-duration: 2s
     instances:
       walletDebit:
-        timeout-duration: 2s
+        base-config: default
       inventoryReserve:
-        timeout-duration: 2s
+        base-config: default
   retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
     instances:
       inventoryRelease:
-        max-attempts: 3
-        wait-duration: 500ms
+        base-config: default
       walletCredit:
-        max-attempts: 3
-        wait-duration: 500ms
+        base-config: default

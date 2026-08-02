@@ -27,6 +27,7 @@
 
 	<properties>
 		<java.version>17</java.version>
+		<spring-boot.version>3.4.1</spring-boot.version>
 		<spring-cloud.version>2025.1.2</spring-cloud.version>
 		<wiremock.version>3.9.2</wiremock.version>
 		<!-- 3.x targets Spring Boot 4 / Spring Framework 7; do not downgrade to the 2.x line. -->
@@ -56,6 +57,11 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-aop</artifactId>
+				<version>3.4.1</version>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>

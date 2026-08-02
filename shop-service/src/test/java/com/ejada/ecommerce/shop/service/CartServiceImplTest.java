@@ -7,7 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
 import com.ejada.ecommerce.shop.client.dto.ProductBatchItem;
 import com.ejada.ecommerce.shop.domain.Cart;
 import com.ejada.ecommerce.shop.domain.CartItem;
@@ -39,7 +39,7 @@ class CartServiceImplTest {
 	private CartItemRepository cartItemRepository;
 
 	@Mock
-	private InventoryClient inventoryClient;
+	private ResilientInventoryClient inventoryClient;
 
 	private CartMapper cartMapper = new CartMapper();
 

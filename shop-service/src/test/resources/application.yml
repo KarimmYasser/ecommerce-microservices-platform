@@ -13,3 +13,56 @@ eureka:
 
 jwt:
   secret: test-only-secret-do-not-use-in-any-real-environment
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,circuitbreakerevents
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        register-health-indicator: true
+    instances:
+      inventoryCheck:
+        base-config: default
+      inventoryReserve:
+        base-config: default
+        ignore-exceptions:
+          - feign.FeignException$Conflict
+          - com.ejada.ecommerce.shop.exception.InsufficientStockException
+      walletDebit:
+        base-config: default
+        ignore-exceptions:
+          - com.ejada.ecommerce.shop.exception.PaymentFailedException
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 2s
+    instances:
+      walletDebit:
+        base-config: default
+      inventoryReserve:
+        base-config: default
+  retry:
+    configs:
+      default:
+        max-attempts: 3
+        wait-duration: 500ms
+    instances:
+      inventoryRelease:
+        base-config: default
+      walletCredit:
+        base-config: default

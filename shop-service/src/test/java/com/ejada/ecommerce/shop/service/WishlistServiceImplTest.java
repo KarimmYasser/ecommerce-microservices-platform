@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.ejada.ecommerce.shop.client.InventoryClient;
+import com.ejada.ecommerce.shop.client.ResilientInventoryClient;
 import com.ejada.ecommerce.shop.client.dto.ProductBatchItem;
 import com.ejada.ecommerce.shop.domain.WishlistItem;
 import com.ejada.ecommerce.shop.dto.WishlistItemInput;
@@ -29,7 +29,7 @@ class WishlistServiceImplTest {
 	private WishlistItemRepository wishlistItemRepository;
 
 	@Mock
-	private InventoryClient inventoryClient;
+	private ResilientInventoryClient inventoryClient;
 
 	private WishlistMapper wishlistMapper = new WishlistMapper();
 
