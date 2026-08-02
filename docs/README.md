@@ -56,6 +56,9 @@ can read one concern without wading through the rest.
 - [phase-4-service-mesh.md](implementation-plan/phase-4-service-mesh.md)
 - [phase-5-end-to-end.md](implementation-plan/phase-5-end-to-end.md)
 
+## 8. Operations & Extending Guide
+- [running-and-extending.md](running-and-extending.md) — Local startup tutorial, horizontal scaling, and adding new microservices.
+
 ---
 
 ### How the pieces relate
