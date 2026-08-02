@@ -1,53 +1,77 @@
 %% E-commerce microservices — full system architecture
-%% Paste this whole file into Excalidraw: menu (top-left) -> "Insert" -> "Mermaid to Excalidraw"
+%% Optimized for Excalidraw import (Menu -> Insert -> Mermaid to Excalidraw)
 %% Source of truth: docs/architecture/01-system-overview.md, 02-service-topology.md, 03-request-flows.md
 flowchart TB
-    Client["Client / Postman<br/>(browser, mobile app, API client)"]
 
-    subgraph GW["Gateway — :8080"]
-        Gateway["api-gateway<br/>routing / load balancing / JWT auth gate"]
+    subgraph CLIENT_LAYER ["External Client Layer"]
+        Client["Client / Postman<br/>(Browser, Mobile App, API Client)"]
     end
 
-    subgraph BIZ["Business Services"]
-        direction LR
-        Inventory["inventory-service — :8081<br/>products / categories / variants / stock"]
-        Wallet["wallet-service — :8082<br/>users / auth (JWT issuer) / wallet / ledger"]
-        Shop["shop-service — :8083<br/>cart / wishlist / orders / reviews<br/>(checkout saga orchestrator)"]
+    subgraph GW_LAYER ["API Gateway Layer (:8080)"]
+        Gateway["api-gateway<br/>Spring Cloud Gateway<br/>Routing / Load Balancing / JWT Auth Gate"]
     end
 
-    subgraph DATA["MySQL — one schema per service"]
-        direction LR
-        InvDB[("inventory_db")]
-        WalDB[("wallet_db")]
-        ShopDB[("shop_db")]
+    subgraph INFRA_LAYER ["Cloud Infrastructure Services"]
+        Config["config-server (:8888)<br/>Centralised Configuration"]
+        Eureka["eureka-server (:8761)<br/>Service Discovery"]
+        Config ~~~ Eureka
     end
 
-    subgraph CLOUD["Cloud Infrastructure"]
-        direction LR
-        Config["config-server — :8888<br/>centralised configuration"]
-        Eureka["eureka-server — :8761<br/>service discovery"]
+    subgraph BIZ_LAYER ["Core Business Microservices"]
+        Inventory["inventory-service (:8081)<br/>Products / Categories / Variants / Stock"]
+        Wallet["wallet-service (:8082)<br/>Users / Auth (JWT Issuer) / Wallet / Ledger"]
+        Shop["shop-service (:8083)<br/>Cart / Wishlist / Orders / Reviews<br/>(Checkout Saga Orchestrator)"]
+        Inventory ~~~ Wallet ~~~ Shop
     end
 
-    Client -->|HTTPS| Gateway
+    subgraph DATA_LAYER ["MySQL Database Layer (Schema per Service)"]
+        InvDB[("inventory_db<br/>(MySQL)")]
+        WalDB[("wallet_db<br/>(MySQL)")]
+        ShopDB[("shop_db<br/>(MySQL)")]
+        InvDB ~~~ WalDB ~~~ ShopDB
+    end
 
-    Gateway -->|"lb://inventory-service<br/>/api/v1/products/**, /categories/**"| Inventory
-    Gateway -->|"lb://wallet-service<br/>/api/v1/auth/**, /wallets/me/**, /users/**"| Wallet
-    Gateway -->|"lb://shop-service<br/>/api/v1/cart/**, /wishlist/**, /orders/**, /reviews/**"| Shop
+    %% Flow Connections
+    Client -->|"HTTPS / REST"| Gateway
 
-    Shop -->|"Feign: check / reserve / release stock<br/>+ batch product fetch"| Inventory
-    Shop -->|"Feign: debit / credit wallet<br/>(Resilience4j circuit breaker)"| Wallet
+    Gateway -->|"lb://inventory-service"| Inventory
+    Gateway -->|"lb://wallet-service"| Wallet
+    Gateway -->|"lb://shop-service"| Shop
 
+    %% Inter-Service Feign Calls
+    Shop -->|"Feign: Reserve/Release Stock"| Inventory
+    Shop -->|"Feign: Debit/Credit Balance"| Wallet
+
+    %% Database Bindings
     Inventory --- InvDB
     Wallet --- WalDB
     Shop --- ShopDB
 
-    Gateway -.->|"register / discover"| Eureka
-    Inventory -.->|"register / discover"| Eureka
-    Wallet -.->|"register / discover"| Eureka
-    Shop -.->|"register / discover"| Eureka
+    %% Infrastructure Registration & Config
+    Gateway -.->|"Discover"| Eureka
+    Inventory -.->|"Register & Discover"| Eureka
+    Wallet -.->|"Register & Discover"| Eureka
+    Shop -.->|"Register & Discover"| Eureka
 
-    Gateway -.->|"fetch config"| Config
-    Inventory -.->|"fetch config"| Config
-    Wallet -.->|"fetch config"| Config
-    Shop -.->|"fetch config"| Config
-    Eureka -.->|"fetch config"| Config
+    Gateway -.->|"Fetch Config"| Config
+    Inventory -.->|"Fetch Config"| Config
+    Wallet -.->|"Fetch Config"| Config
+    Shop -.->|"Fetch Config"| Config
+    Eureka -.->|"Fetch Config"| Config
+
+    %% Custom Styling & Color Scheme
+    classDef clientStyle fill:#4f46e5,stroke:#3730a3,stroke-width:2px,color:#ffffff,font-weight:bold;
+    classDef gatewayStyle fill:#0284c7,stroke:#0369a1,stroke-width:2px,color:#ffffff,font-weight:bold;
+    classDef bizStyle fill:#0f766e,stroke:#115e59,stroke-width:2px,color:#ffffff;
+    classDef shopStyle fill:#b45309,stroke:#78350f,stroke-width:2px,color:#ffffff,font-weight:bold;
+    classDef infraStyle fill:#7e22ce,stroke:#581c87,stroke-width:2px,color:#ffffff;
+    classDef dbStyle fill:#c2410c,stroke:#9a3412,stroke-width:2px,color:#ffffff,font-weight:bold;
+
+    class Client clientStyle;
+    class Gateway gatewayStyle;
+    class Inventory,Wallet bizStyle;
+    class Shop shopStyle;
+    class Config,Eureka infraStyle;
+    class InvDB,WalDB,ShopDB dbStyle;
+
+
