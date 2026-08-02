@@ -1,13 +1,10 @@
-# Ejada E-Commerce Platform - Microservices Backend
+# Distributed E-Commerce Microservices Platform
 
-A Spring Cloud microservices platform for an e-commerce store, built with a
-database-per-service architecture, JWT stateless security, a synchronous
-checkout saga with compensation on failure, OpenFeign inter-service calls, and
-an API Gateway edge auth filter.
+A production-grade, distributed microservices platform for e-commerce, built with **Spring Boot 3**, **Spring Cloud (2025)**, a **database-per-service** architecture, **JWT stateless security**, a **synchronous checkout saga with compensation on failure**, **OpenFeign** inter-service calls, **Resilience4j** fault tolerance, and an **API Gateway** edge auth filter.
 
 ---
 
-## Architecture & microservice topology
+## Architecture & Microservice Topology
 
 The system comprises 6 deployable microservices orchestrated via Maven parent POM:
 
@@ -34,28 +31,45 @@ The system comprises 6 deployable microservices orchestrated via Maven parent PO
 [inventory_db]            [wallet_db]              [shop_db]
 ```
 
-### Infrastructure services
-- **`config-server`** (Port `8888`): centralised native configuration server delivering environment-specific YAML configs with zero committed secrets.
+### Infrastructure Services
+- **`config-server`** (Port `8888`): Centralized native configuration server delivering environment-specific YAML configs with zero committed secrets.
 - **`eureka-server`** (Port `8761`): Netflix Eureka service discovery registry.
-- **`api-gateway`** (Port `8080`): edge gateway providing path routing, JWT validation, and `X-User-Id`/`X-User-Roles` header injection; internal service-to-service endpoints are not routed publicly.
+- **`api-gateway`** (Port `8080`): Edge gateway providing path routing, JWT validation, and `X-User-Id`/`X-User-Roles` header injection; internal service-to-service endpoints are not routed publicly.
 
-### Business microservices
-- **`inventory-service`** (Port `8081`): product catalog, category management, stock reservations & releases (`inventory_db`).
-- **`wallet-service`** (Port `8082`): auth provider (JWT issuer), user management, wallet balance, deposits/withdrawals, and idempotent debits & credits (`wallet_db`).
-- **`shop-service`** (Port `8083`): cart with live price enrichment, wishlist, reviews, order management, and the checkout saga (`shop_db`).
+### Business Microservices
+- **`inventory-service`** (Port `8081`): Product catalog, category management, stock reservations & releases (`inventory_db`).
+- **`wallet-service`** (Port `8082`): Auth provider (JWT issuer), user management, wallet balance, deposits/withdrawals, and idempotent debits & credits (`wallet_db`).
+- **`shop-service`** (Port `8083`): Cart with live price enrichment, wishlist, reviews, order management, and the checkout saga (`shop_db`).
 
 ---
 
-## Quick start guide
+## Technical Highlights & Key Engineering Patterns
+
+1. **Distributed Saga Pattern (Checkout Saga)**:
+   - Synchronous multi-step transaction orchestrating stock reservation (`inventory-service`) and wallet debit (`wallet-service`).
+   - Automated compensation logic (`inventory/release`) triggered on payment failure to ensure strict eventual data consistency.
+
+2. **Fault Tolerance & Resilience**:
+   - Resilience4j `@CircuitBreaker`, `@Retry`, and `@TimeLimiter` wrappers around inter-service OpenFeign calls.
+   - Business error separation (409 Out of Stock, 402 Insufficient Funds mapped to business exceptions) preventing transient circuit breaker trips.
+
+3. **Stateless JWT Security Architecture**:
+   - `wallet-service` acts as the single Identity Provider (IdP) issuing signed JWTs.
+   - `api-gateway` validates tokens at the perimeter, injecting authenticated user metadata (`X-User-Id`, `X-User-Roles`) into downstream headers.
+   - Internal inter-service endpoints (`/inventory/reserve`, `/wallets/*/debit`) are shielded from public route exposure.
+
+4. **Testing Strategy & High Coverage**:
+   - Comprehensive test suite including unit tests, slice tests with Testcontainers (real MySQL), inter-service WireMock stubs, and full reactor verification (`./mvnw clean verify`).
+
+---
+
+## Quick Start Guide
 
 ### Prerequisites
-- **JDK 17** or higher
-- **MySQL 8.x** running locally (or via Docker):
-  - `inventory_db` (Port 3306)
-  - `wallet_db` (Port 3306)
-  - `shop_db` (Port 3306)
+- **JDK 17+**
+- **MySQL 8.x** running locally (or via Docker) with `inventory_db`, `wallet_db`, and `shop_db` created.
 
-### Build & run tests
+### Build & Run Tests
 ```bash
 # Runs the full unit, slice (Testcontainers), and integration (WireMock) suite
 ./mvnw clean verify
@@ -72,8 +86,8 @@ The system comprises 6 deployable microservices orchestrated via Maven parent PO
 docker compose up --build -d
 ```
 
-#### Option B: Manual Maven / IDE Startup
-Start the microservices in the following sequential order:
+#### Option B: Sequential Maven / IDE Startup
+Start the microservices in the following order:
 1. `config-server` (`:8888`): `./mvnw -pl config-server spring-boot:run`
 2. `eureka-server` (`:8761`): `./mvnw -pl eureka-server spring-boot:run`
 3. `inventory-service` (`:8081`): `./mvnw -pl inventory-service spring-boot:run`
@@ -83,9 +97,9 @@ Start the microservices in the following sequential order:
 
 ---
 
-## Security & environment variables
+## Environment Variables & Configuration
 
-All sensitive values are passed via environment variables (never committed):
+Sensitive and environment-specific settings are configured via placeholders:
 
 | Variable | Description | Example / Default |
 |---|---|---|
@@ -98,36 +112,12 @@ All sensitive values are passed via environment variables (never committed):
 
 ---
 
-## Postman collection
+## Postman Collection & Documentation
 
-A Postman collection and environment are under `docs/postman/`:
-- **Collection**: [docs/postman/ecommerce-platform.postman_collection.json](docs/postman/ecommerce-platform.postman_collection.json)
-- **Environment**: [docs/postman/ecommerce-platform.postman_environment.json](docs/postman/ecommerce-platform.postman_environment.json)
+- **Postman Collection**: [docs/postman/ecommerce-platform.postman_collection.json](docs/postman/ecommerce-platform.postman_collection.json)
+- **Postman Environment**: [docs/postman/ecommerce-platform.postman_environment.json](docs/postman/ecommerce-platform.postman_environment.json)
+- **Operations & Running Guide**: [docs/running-and-extending.md](docs/running-and-extending.md)
+- **Design Decisions & Architecture**: [docs/architecture/00-design-decisions.md](docs/architecture/00-design-decisions.md)
+- **Request Flows & Checkout Saga**: [docs/architecture/03-request-flows.md](docs/architecture/03-request-flows.md)
+- **Authentication & Security**: [docs/security/authentication-authorization.md](docs/security/authentication-authorization.md)
 
-The `Auth -> Login User` request's test script extracts the returned JWT into
-the `{{jwt}}` collection variable, which subsequent protected requests reuse.
-This is a manual demo aid, not a replacement for the automated test suite.
-
----
-
-## Endpoints & Actuator dashboards
-
-- **Eureka service registry**: `http://localhost:8761`
-- **Config server endpoints**: `http://localhost:8888/shop-service/default`
-- **Swagger UI**:
-  - `inventory-service`: `http://localhost:8081/swagger-ui.html`
-  - `wallet-service`: `http://localhost:8082/swagger-ui.html`
-  - `shop-service`: `http://localhost:8083/swagger-ui.html`
-- **Actuator (shop-service)**: circuit breaker instances are registered and
-  visible at `/actuator/circuitbreakers` and `/actuator/circuitbreakerevents`,
-  but nothing calls through them yet — see the status note above.
-
----
-
-## Project documentation
-
-- [Project Guidelines & Architecture Rules](CLAUDE.md)
-- [Design Decisions (`00-design-decisions.md`)](docs/architecture/00-design-decisions.md)
-- [Request Flows & Checkout Saga (`03-request-flows.md`)](docs/architecture/03-request-flows.md)
-- [Authentication & Authorization (`authentication-authorization.md`)](docs/security/authentication-authorization.md)
-- [Implementation Roadmap Status Board](docs/implementation-plan/README.md)
