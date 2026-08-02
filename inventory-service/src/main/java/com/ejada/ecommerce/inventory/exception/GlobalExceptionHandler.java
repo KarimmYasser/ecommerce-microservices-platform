@@ -27,6 +27,11 @@ public class GlobalExceptionHandler {
 		return body(HttpStatus.BAD_REQUEST, "INVALID_STOCK_ADJUSTMENT", ex.getMessage(), request);
 	}
 
+	@ExceptionHandler({ IllegalArgumentException.class, IllegalStateException.class })
+	public ResponseEntity<ErrorResponse> handleBadRequest(RuntimeException ex, HttpServletRequest request) {
+		return body(HttpStatus.BAD_REQUEST, "BAD_REQUEST", ex.getMessage(), request);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
 			HttpServletRequest request) {
