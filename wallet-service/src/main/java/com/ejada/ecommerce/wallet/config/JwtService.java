@@ -14,6 +14,8 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 /**
  * The identity provider: this is the only service that SIGNS tokens. Every
  * other service only validates them with the same shared secret. See
@@ -38,6 +40,7 @@ public class JwtService {
 	public String issue(Long userId, String role) {
 		Instant now = Instant.now();
 		return Jwts.builder()
+				.id(UUID.randomUUID().toString())
 				.subject(String.valueOf(userId))
 				.claim("roles", List.of(role))
 				.issuedAt(Date.from(now))

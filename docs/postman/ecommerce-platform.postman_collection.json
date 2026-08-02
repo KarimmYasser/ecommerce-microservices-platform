@@ -34,9 +34,10 @@
 							"script": {
 								"exec": [
 									"var jsonData = pm.response.json();",
-									"if (jsonData.token) {",
-									"    pm.collectionVariables.set(\"jwt\", jsonData.token);",
-									"    console.log(\"Captured JWT token: \" + jsonData.token);",
+									"var token = jsonData.accessToken || jsonData.token;",
+									"if (token) {",
+									"    pm.collectionVariables.set(\"jwt\", token);",
+									"    console.log(\"Captured JWT token: \" + token);",
 									"}"
 								],
 								"type": "text/javascript"
