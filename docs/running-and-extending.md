@@ -239,35 +239,50 @@ This command automatically:
 
 ---
 
-### Useful Docker Management Commands
+### Fast Execution Without Rebuilding Images
 
-- **Check Service Health & Container Status**:
-  ```bash
-  docker compose ps
-  ```
+Once images have been built for the first time, you do **not** need to use `--build`. Use the commands below for instant container startup and management:
 
-- **Tail Centralized Logs**:
-  ```bash
-  # Tail logs for all containers
-  docker compose logs -f
+#### 1. Start Existing Containers Instantly (No Rebuild)
+```bash
+docker compose up -d
+```
+*   **What it does**: Starts all 6 microservice containers + MySQL instantly using pre-existing Docker images in detached mode. Skips image creation, saving significant time.
 
-  # Tail logs for a specific service (e.g. shop-service or api-gateway)
-  docker compose logs -f shop-service
-  docker compose logs -f api-gateway
-  ```
+#### 2. Start Stopped Containers (No Recreate)
+```bash
+docker compose start
+```
+*   **What it does**: Wakes up previously stopped containers without recreating them or resetting container network state.
 
-- **Rebuild and Restart a Single Service**:
-  ```bash
-  ./mvnw -pl shop-service package -DskipTests
-  docker compose up -d --build shop-service
-  ```
+#### 3. Stop Containers Gracefully
+```bash
+docker compose stop
+```
+*   **What it does**: Gracefully stops all running containers without destroying them or deleting MySQL databases.
 
-- **Stop & Clean Up**:
-  ```bash
-  # Stop containers (preserves MySQL data volume)
-  docker compose down
+#### 4. Restart All Services (Fast Reset)
+```bash
+docker compose restart
+```
+*   **What it does**: Restarts all microservices and infrastructure containers without rebuilding any Docker images.
 
-  # Stop containers and wipe MySQL data volume
-  docker compose down -v
-  ```
+---
+
+### Complete Docker Command Reference Table
+
+| Command | Rebuilds Images? | Destroys Containers? | Description / Use Case |
+|---|---|---|---|
+| `docker compose up -d` | ❌ No | ❌ No | **Fast Start**: Starts all services using existing images in background. |
+| `docker compose up --build -d` | ✅ Yes | ✅ Recreates | **Full Build & Start**: Rebuilds images from updated JAR files and starts containers. |
+| `docker compose start` | ❌ No | ❌ No | **Resume**: Starts previously stopped containers without recreating. |
+| `docker compose stop` | ❌ No | ❌ No | **Pause**: Gracefully stops running containers (data & containers preserved). |
+| `docker compose restart` | ❌ No | ❌ No | **Reboot**: Restarts containers without altering images or volumes. |
+| `docker compose ps` | N/A | N/A | **Status Check**: Displays current status and health of all containers. |
+| `docker compose logs -f` | N/A | N/A | **Live Log Stream**: Streams live logs for all running services (`Ctrl+C` to exit). |
+| `docker compose logs -f <service>` | N/A | N/A | **Single Service Log**: Streams logs for a specific service (e.g. `shop-service`). |
+| `docker compose down` | ❌ No | ✅ Yes | **Clean Teardown**: Stops and removes containers and network (MySQL volume preserved). |
+| `docker compose down -v` | ❌ No | ✅ Yes | **Total Wipe**: Removes containers, networks, AND deletes MySQL database volume. |
+| `docker compose exec <service> sh` | N/A | N/A | **Shell Access**: Opens an interactive shell inside a running container. |
+
 
