@@ -204,3 +204,70 @@ public interface NotificationClient {
     void sendNotification(@RequestBody NotificationRequest request);
 }
 ```
+
+---
+
+## 5. Running with Docker & Docker Compose
+
+The codebase includes a pre-configured [docker-compose.yml](file:///d:/Projects/SprintBoot/ejada-final-project/docker-compose.yml) and light-weight Dockerfiles in every module for zero-dependency containerized execution.
+
+### Prerequisites
+- Install **Docker Desktop** (Windows/macOS) or **Docker Engine + Docker Compose** plugin (Linux).
+
+---
+
+### Step-by-Step Docker Startup
+
+#### 1. Package Executable JAR Files
+Build all module executable JAR files first:
+```bash
+./mvnw clean package -DskipTests
+```
+
+#### 2. Launch Container Fabric with Docker Compose
+Run the following command from the project root directory:
+```bash
+docker compose up --build -d
+```
+*(Note: If using Docker Compose v1, use `docker-compose up --build -d`)*
+
+This command automatically:
+1. Provisions a MySQL 8.4 container (`ejada-ecommerce-mysql`).
+2. Executes `./docker/mysql-init/01-init-databases.sql` to automatically create `inventory_db`, `wallet_db`, and `shop_db`.
+3. Waits for MySQL healthcheck to pass before starting `config-server` (`:8888`) and `eureka-server` (`:8761`).
+4. Builds images and starts `inventory-service` (`:8081`), `wallet-service` (`:8082`), `shop-service` (`:8083`), and `api-gateway` (`:8080`).
+
+---
+
+### Useful Docker Management Commands
+
+- **Check Service Health & Container Status**:
+  ```bash
+  docker compose ps
+  ```
+
+- **Tail Centralized Logs**:
+  ```bash
+  # Tail logs for all containers
+  docker compose logs -f
+
+  # Tail logs for a specific service (e.g. shop-service or api-gateway)
+  docker compose logs -f shop-service
+  docker compose logs -f api-gateway
+  ```
+
+- **Rebuild and Restart a Single Service**:
+  ```bash
+  ./mvnw -pl shop-service package -DskipTests
+  docker compose up -d --build shop-service
+  ```
+
+- **Stop & Clean Up**:
+  ```bash
+  # Stop containers (preserves MySQL data volume)
+  docker compose down
+
+  # Stop containers and wipe MySQL data volume
+  docker compose down -v
+  ```
+
