@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "Ejada E-Commerce Platform",
-		"description": "Comprehensive Postman collection for Ejada E-Commerce Platform. Base URL points to API Gateway (http://localhost:8080). Login automatically extracts JWT token and stores it in the collection variable 'jwt'.",
+		"description": "Comprehensive Postman collection covering all Public, Shopper, Admin, Profile, Search/Filter, and Internal endpoints for Ejada E-Commerce Platform. Base URL points to API Gateway (http://localhost:8080).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -10,7 +10,7 @@
 	],
 	"item": [
 		{
-			"name": "Auth",
+			"name": "Auth & Profile",
 			"item": [
 				{
 					"name": "Register User",
@@ -22,7 +22,7 @@
 						"url": "{{baseUrl}}/api/v1/auth/register",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Customer123!\",\n  \"fullName\": \"John Customer\"\n}"
+							"raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Customer123!\",\n  \"fullName\": \"John Customer\",\n  \"phone\": \"+20123456789\"\n}"
 						}
 					}
 				},
@@ -54,11 +54,36 @@
 							"raw": "{\n  \"email\": \"customer@example.com\",\n  \"password\": \"Customer123!\"\n}"
 						}
 					}
+				},
+				{
+					"name": "Get My Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" }
+						],
+						"url": "{{baseUrl}}/api/v1/users/me"
+					}
+				},
+				{
+					"name": "Update My Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/users/me",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullName\": \"John Updated Customer\",\n  \"phone\": \"+20199999999\"\n}"
+						}
+					}
 				}
 			]
 		},
 		{
-			"name": "Wallet",
+			"name": "Wallet & Ledger",
 			"item": [
 				{
 					"name": "Get My Wallet",
@@ -71,7 +96,7 @@
 					}
 				},
 				{
-					"name": "Deposit",
+					"name": "Deposit Funds",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -81,20 +106,49 @@
 						"url": "{{baseUrl}}/api/v1/wallets/me/deposit",
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"amount\": 500.00\n}"
+							"raw": "{\n  \"amount\": 1000.00\n}"
 						}
+					}
+				},
+				{
+					"name": "Get Wallet Transaction History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" }
+						],
+						"url": "{{baseUrl}}/api/v1/wallets/me/transactions?page=0&size=10"
 					}
 				}
 			]
 		},
 		{
-			"name": "Catalog",
+			"name": "Catalog (Shopper Public)",
 			"item": [
 				{
-					"name": "List Products",
+					"name": "List Products (Default Page)",
 					"request": {
 						"method": "GET",
-						"url": "{{baseUrl}}/api/v1/products?page=0&size=10"
+						"url": "{{baseUrl}}/api/v1/products?page=0&size=10&sort=basePrice,asc"
+					}
+				},
+				{
+					"name": "Search & Filter Products",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/products?q=shoe&categoryId=1&onSale=true&minPrice=100&maxPrice=500&sort=ratingAverage,desc",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "v1", "products"],
+							"query": [
+								{ "key": "q", "value": "shoe" },
+								{ "key": "categoryId", "value": "1" },
+								{ "key": "onSale", "value": "true" },
+								{ "key": "minPrice", "value": "100" },
+								{ "key": "maxPrice", "value": "500" },
+								{ "key": "sort", "value": "ratingAverage,desc" }
+							]
+						}
 					}
 				},
 				{
@@ -109,6 +163,125 @@
 					"request": {
 						"method": "GET",
 						"url": "{{baseUrl}}/api/v1/categories"
+					}
+				},
+				{
+					"name": "List Products by Category",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/categories/1/products?page=0&size=10"
+					}
+				},
+				{
+					"name": "Batch Product Lookup",
+					"request": {
+						"method": "GET",
+						"url": "{{baseUrl}}/api/v1/products/batch?ids=1,2,3"
+					}
+				}
+			]
+		},
+		{
+			"name": "Catalog & Stock (Admin)",
+			"item": [
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/products",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Leather Formal Shoe\",\n  \"description\": \"Premium handcrafted leather shoe\",\n  \"brand\": \"Ejada Luxe\",\n  \"categoryId\": 1,\n  \"basePrice\": 299.99,\n  \"currency\": \"EGP\",\n  \"isNew\": true\n}"
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/products/1",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Leather Formal Shoe\",\n  \"description\": \"Updated description\",\n  \"brand\": \"Ejada Luxe\",\n  \"categoryId\": 1,\n  \"basePrice\": 279.99,\n  \"compareAtPrice\": 320.00,\n  \"currency\": \"EGP\",\n  \"isNew\": false,\n  \"isActive\": true\n}"
+						}
+					}
+				},
+				{
+					"name": "Add Variant to Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/products/1/variants",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"sku\": \"SHOE-BLK-42\",\n  \"size\": \"42\",\n  \"color\": \"Black\",\n  \"initialStock\": 50\n}"
+						}
+					}
+				},
+				{
+					"name": "Adjust Variant Stock",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/variants/1/stock/adjust",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"delta\": 20,\n  \"reason\": \"Restock from supplier\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Delete Product (Soft Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" }
+						],
+						"url": "{{baseUrl}}/api/v1/products/1"
+					}
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/categories",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Footwear\",\n  \"slug\": \"footwear\",\n  \"description\": \"All shoes and boots\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"url": "{{baseUrl}}/api/v1/categories/1",
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Luxury Footwear\",\n  \"slug\": \"luxury-footwear\",\n  \"description\": \"Premium shoes\"\n}"
+						}
 					}
 				}
 			]
@@ -269,7 +442,7 @@
 			]
 		},
 		{
-			"name": "Reviews",
+			"name": "Reviews & Ratings",
 			"item": [
 				{
 					"name": "Get Product Reviews",
@@ -291,6 +464,16 @@
 							"mode": "raw",
 							"raw": "{\n  \"rating\": 5,\n  \"title\": \"Excellent Quality\",\n  \"body\": \"Super fast delivery and great build quality.\"\n}"
 						}
+					}
+				},
+				{
+					"name": "Delete My Review",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "Authorization", "value": "Bearer {{jwt}}" }
+						],
+						"url": "{{baseUrl}}/api/v1/reviews/1"
 					}
 				}
 			]
