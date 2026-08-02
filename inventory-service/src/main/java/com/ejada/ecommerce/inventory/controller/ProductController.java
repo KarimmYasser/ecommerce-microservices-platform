@@ -44,7 +44,7 @@ public class ProductController {
 			@RequestParam(required = false) Boolean onSale,
 			@RequestParam(required = false) BigDecimal minPrice,
 			@RequestParam(required = false) BigDecimal maxPrice,
-			Pageable pageable) {
+			@org.springdoc.core.annotations.ParameterObject Pageable pageable) {
 		var filter = new ProductFilter(q, categoryId, isNew, onSale, minPrice, maxPrice);
 		return productService.search(filter, pageable);
 	}

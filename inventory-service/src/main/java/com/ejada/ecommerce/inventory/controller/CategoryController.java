@@ -35,7 +35,7 @@ public class CategoryController {
 	}
 
 	@GetMapping("/{id}/products")
-	public PageResponse<ProductSummaryResponse> productsInCategory(@PathVariable Long id, Pageable pageable) {
+	public PageResponse<ProductSummaryResponse> productsInCategory(@PathVariable Long id, @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
 		var filter = new ProductFilter(null, id, null, null, null, null);
 		return productService.search(filter, pageable);
 	}

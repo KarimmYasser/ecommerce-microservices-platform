@@ -39,7 +39,7 @@ public class WalletController {
 	}
 
 	@GetMapping("/me/transactions")
-	public PageResponse<TransactionResponse> getTransactions(Authentication authentication, Pageable pageable) {
+	public PageResponse<TransactionResponse> getTransactions(Authentication authentication, @org.springdoc.core.annotations.ParameterObject Pageable pageable) {
 		return walletService.getTransactions(currentUserId(authentication), pageable);
 	}
 
