@@ -1,21 +1,9 @@
-# Ejada E-Commerce Platform — Microservices Backend
+# Ejada E-Commerce Platform - Microservices Backend
 
 A Spring Cloud microservices platform for an e-commerce store, built with a
 database-per-service architecture, JWT stateless security, a synchronous
 checkout saga with compensation on failure, OpenFeign inter-service calls, and
 an API Gateway edge auth filter.
-
-> **Status:** Phases 0–3 done and fully tested; 175 tests green across the
-> full reactor (`./mvnw clean verify`). Phases 4–5 (service mesh, end-to-end
-> validation) are mostly done — see
-> [docs/implementation-plan/README.md](docs/implementation-plan/README.md) for
-> the current status board. One open item: Resilience4j circuit
-> breaker/retry/time-limiter instances are configured and visible via
-> Actuator, but nothing is wired to them yet with `@CircuitBreaker`/`@Retry`
-> — the checkout saga's resilience today comes from manually inspecting
-> `FeignException` status codes and running the matching compensation, not
-> from an automated breaker. See
-> [docs/implementation-plan/phase-4-service-mesh.md](docs/implementation-plan/phase-4-service-mesh.md).
 
 ---
 
