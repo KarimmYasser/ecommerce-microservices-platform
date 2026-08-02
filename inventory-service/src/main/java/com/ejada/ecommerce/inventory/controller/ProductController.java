@@ -10,6 +10,7 @@ import com.ejada.ecommerce.inventory.dto.ProductUpdateRequest;
 import com.ejada.ecommerce.inventory.dto.VariantInput;
 import com.ejada.ecommerce.inventory.dto.VariantResponse;
 import com.ejada.ecommerce.inventory.service.ProductService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
@@ -34,6 +35,7 @@ public class ProductController {
 
 	private final ProductService productService;
 
+	@SecurityRequirement(name = "")
 	@GetMapping
 	public PageResponse<ProductSummaryResponse> search(
 			@RequestParam(required = false) String q,
@@ -53,10 +55,12 @@ public class ProductController {
 		return productService.findBatch(ids);
 	}
 
+	@SecurityRequirement(name = "")
 	@GetMapping("/{id}")
 	public ProductDetailResponse getById(@PathVariable Long id) {
 		return productService.getById(id);
 	}
+
 
 	@PostMapping
 	public ResponseEntity<ProductDetailResponse> create(@Valid @RequestBody ProductCreateRequest request) {
